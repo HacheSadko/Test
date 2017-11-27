@@ -1,110 +1,126 @@
+
+
 package proyectoaula;
+import static com.sun.java.accessibility.util.AWTEventMonitor.addActionListener;
 import java.awt.*;
 import javax.swing.*;
 import java.awt.event.*;
 import java.io.*;
 import java.util.*;
-public class Examen extends JFrame implements ItemListener, ActionListener
-{
-    JButton boton;
-    JLabel Preg1,imaginaldappl,Preg2;
-    JRadioButton Res1;
-    JRadioButton Res2;
-    JRadioButton Res3;
-    JRadioButton Res4;
-    int a=86, b = 7, c = 12,buenas=0,malas=0;
-    Icon icono = new ImageIcon("imagenes/cronometrito.gif"); 
-    public Examen()
-       {
-        Font fuente = new Font("Calibri",3,15);
-        Color guinda = new Color(a,b,c);        
-        setLayout(null);
-        setBounds(300,150,800,500);
-        this.getContentPane().setBackground(guinda);
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setTitle("Cuestionario");
-        setVisible(true);
-        
-        Preg1=new JLabel();     
-        Preg1.setBounds(50,30,800,60);
-        Preg1.setText("1.-Es una cantidad escalar");
-        add(Preg1);
-        Preg1.setForeground(Color.white);
-        Preg1.setFont(fuente);
-        
-        Preg2=new JLabel();     
-        Preg2.setBounds(50,50,800,60);
-        add(Preg2);
-        Preg2.setForeground(Color.white);
-        Preg2.setFont(fuente);
-        
-        Res1=new JRadioButton();
-        Res1.setBounds(50,120,300,30); 
-        Res1.setText("1");
-        Res1.setFont(fuente);
-        add(Res1);
-        
-        Res2=new JRadioButton();
-        Res2.setBounds(50,140,300,30);
-        Res1.setText("2");
-        Res2.setFont(fuente);
-        add(Res2);
-        
-        Res3=new JRadioButton();
-        Res3.setBounds(50,160,300,30);
-        Res1.setText("3");
-        Res3.setFont(fuente);
-        add(Res3);
-        
-        Res4=new JRadioButton();
-        Res4.setBounds(50,180,300,30);  
-        Res1.setText("4");
-        Res4.setFont(fuente);
-        add(Res4);
-        
-        boton = new JButton("Salir");
-        boton.setBounds(50, 200, 100, 50);
-        boton.addActionListener(this);
-        add(boton);
-        boton.setFont(fuente);
-        
-        imaginaldappl = new JLabel();
-        imaginaldappl.setBounds(500, 50, 600, 300);
-        imaginaldappl.setIcon(icono);
-        add(imaginaldappl); 
-    }
 
-    @Override
-    public void itemStateChanged(ItemEvent e) 
-    {
-        if(e.getStateChange()==ItemEvent.SELECTED)
-        {
-            
-           if(e.getItem()=="Masa"||e.getItem()=="Todas las anteriores"
-               ||e.getItem()=="750 USD"||e.getItem()=="En New York")
-            {
-                //JOptionPane.showMessageDialog(null,"Correcto");            
-                ++buenas;
-            }
-            else
-            {  
-                 //JOptionPane.showMessageDialog(null,"Incorrecto");
-                ++malas;   
-            }                   
-            dispose();
-            JOptionPane.showMessageDialog(null, "Examen finalizado");
-            Menu resgresa = new Menu();
-           }
-    }
 
-    @Override
-    public void actionPerformed(ActionEvent event) {
-            if(event.getActionCommand()=="Salir")
-        {
-            dispose();
-            JOptionPane.showMessageDialog(null, "Examen finalizado");
-            Menu resgresa = new Menu();
-        }
+public class Examen extends JFrame implements Serializable {
     
+    JButton BotonActualizar;                                                                 //Java swing           
+    JLabel PreguntaInferfaz,ImagenCronometro,Preg2;                                     //Java swing   
+
+    private ArrayList<Question> QuestionOfTest;                                         //All that matters
+
+    int CalificacionesBuenas, CalificacionesMalas;
+
+    int PreguntaActual;
+
+    public Examen() {
+
+        QuestionOfTest = new ArrayList<Question>();
+        PreguntaActual = 0;
+
+
+        try {
+            FileInputStream File = new FileInputStream("E0.txt");
+            ObjectInputStream ObjectInFile = new ObjectInputStream(File);
+
+            this.QuestionOfTest = (ArrayList<Question>) ObjectInFile.readObject();
+            ObjectInFile.close();
+            File.close();
+        }
+        catch(Exception e){System.out.println(e); return;}
+
+
+        ActualizaInterfaz();
     }
+
+
+    public void ActualizaInterfaz() {
+
+        Font FuenteEstandar = new Font("Calibri",3,15);                         //Ventana en si          
+        Color Guinda = new Color(86,7,12);                                      //Ventana en si          
+        setLayout(null);                                                        //Ventana en si          
+        setBounds(300,150,800,500);                                             //Ventana en si          
+        this.getContentPane().setBackground(Guinda);                            //Ventana en si                  
+        setDefaultCloseOperation(EXIT_ON_CLOSE);                                //Ventana en si              
+        setTitle("Cuestionario");                                               //Ventana en si          
+        setVisible(true);                                                       //Ventana en si      
+        
+        PreguntaInferfaz=new JLabel();                                          //Pregunta de la Interfaz      
+        PreguntaInferfaz.setBounds(50,30,800,60);                               //Pregunta de la Interfaz 
+        
+        
+        PreguntaInferfaz.setText(QuestionOfTest.get(PreguntaActual).QuestionSentence);       //Pregunta de la Interfaz          
+        PreguntaInferfaz.setForeground(Color.white);                            //Pregunta de la Interfaz      
+        PreguntaInferfaz.setFont(FuenteEstandar);                               //Pregunta de la Interfaz  
+        add(PreguntaInferfaz);                                                      
+
+        ButtonGroup PosiblesRespuestas = new ButtonGroup();
+        
+        for (int i = 0; i < 4; i++) {
+            JRadioButton NuevoBoton = new JRadioButton();
+            NuevoBoton.setBounds(50,(120)+(20*i),300,30); 
+            NuevoBoton.setText(QuestionOfTest.get(PreguntaActual).AnswerOptions.get(i));
+            NuevoBoton.setFont(FuenteEstandar);
+            PosiblesRespuestas.add(NuevoBoton);
+
+            NuevoBoton.addActionListener( new ActionListener() {
+                public void actionPerformed(ActionEvent e){
+                    JRadioButton Boton = (JRadioButton) e.getSource();
+                    RespuestaDelAlumno = Boton.getText();
+
+                    int OpcionCorrecta = QuestionOfTest.get(PreguntaActual).CorrectOption;
+
+                    if (RespuestaDelAlumno == QuestionOfTest.get(PreguntaActual).AnswerOptions.get(OpcionCorrecta)) {
+                        CalificacionesBuenas++;
+                        System.out.println("Una mas");
+                    }
+                }
+            });
+
+            add(NuevoBoton);
+        }
+
+        BotonActualizar = new JButton("Actualizar");
+        BotonActualizar.setBounds(50, 220, 100, 50);
+        BotonActualizar.setFont(FuenteEstandar);
+        add(BotonActualizar);
+
+        BotonActualizar.addActionListener( new ActionListener() {
+            public void actionPerformed(ActionEvent e){
+                PreguntaActual++;
+                ActualizaInterfaz();
+            }
+        });
+
+        ImagenCronometro = new JLabel();
+        ImagenCronometro.setBounds(500, 50, 600, 300);
+        ImagenCronometro.setIcon(new ImageIcon("imagenes/cronometrito.gif"));
+        add(ImagenCronometro); 
+    }
+
+    public void AddQuestion(Question Q) {QuestionOfTest.add(Q);}                        //Add questions to RAM  
+
+    void WriteToFile() {                                                                //Update data
+        try {
+            FileOutputStream File = new FileOutputStream("E0.txt");
+            ObjectOutputStream ObjectInFile = new ObjectOutputStream(File);
+            
+            ObjectInFile.writeObject(this.QuestionOfTest);
+            
+            ObjectInFile.flush();
+            ObjectInFile.close();
+        }
+        catch(Exception e){System.out.println(e); return;}
+        
+    }
+
+
+
 }

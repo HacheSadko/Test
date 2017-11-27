@@ -12,9 +12,14 @@ import java.io.*;
 
 public class Test implements Serializable {
 
-    private ArrayList<Question> QuestionOfTest;
+    private ArrayList<Question> QuestionOfTest;                                         //All that matters
 
-    public Test (String FileName) {                                                 //Constructor
+    public Test (String FileName) {                                                     //Constructor
+        QuestionOfTest = new ArrayList<Question>();
+
+        if (FileName.equals(null)) return;
+        if (FileName == "") return;
+
         try {
             FileInputStream File = new FileInputStream(FileName);
             ObjectInputStream ObjectInFile = new ObjectInputStream(File);
@@ -26,11 +31,7 @@ public class Test implements Serializable {
         catch(Exception e){System.out.println(e); return;}
     }
 
-    public Test() {
-        QuestionOfTest = new ArrayList<Question>();
-    }
-
-    void WriteToFile(String FileName) {
+    void WriteToFile(String FileName) {                                                 //Update data
         try {
             FileOutputStream File = new FileOutputStream(FileName);
             ObjectOutputStream ObjectInFile = new ObjectOutputStream(File);
@@ -44,26 +45,13 @@ public class Test implements Serializable {
         
     }
 
-    public void AddQuestion(Question Q) {QuestionOfTest.add(Q);}
-
-
-
-
+    public void AddQuestion(Question Q) {QuestionOfTest.add(Q);}                        //Add questions to RAM  
 
 
     public static void main (String [] args) {                                            //The fucking main    
         
 
-        Test NewTest = new Test();
-
-        /*
-
-        for (Question Q : OldTest.QuestionOfTest) {
-            System.out.println(Q.QuestionSentence);
-            System.out.println(Q.AnswerOptions);
-            System.out.println(Q.CorrectOption);
-        }
-        */
+        Test NewTest = new Test("");
 
         Question Q1 = new Question();
         Q1.QuestionSentence = "2+2?";
